@@ -11,12 +11,17 @@ export class UsersResolver {
 
   @Query(() => User)
   @UseGuards(JwtAuthGuard)
-  async getUserByEmail(@Args('args') args: string) {
+  getUserByEmail(@Args('args') args: string) {
     return this.usersService.findOneByEmail(args);
   }
 
   @Mutation(() => User, { nullable: true })
-  async createUser(@Args('args') args: RegisterInput) {
-    return this.usersService.createUser(args);
+  registerUser(@Args() args: RegisterInput): Promise<User> {
+    return this.usersService.registerUser(args);
   }
+
+  // @Mutation(() => User, { nullable: true })
+  // updateUser(@Args() args: UpdateUserInput): Promise<User> {
+  //   return this.usersService.updateUser(args);
+  // }
 }

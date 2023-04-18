@@ -5,27 +5,23 @@ import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
 import { LocalStrategy } from './local.strategy';
 import { JwtStrategy } from './jwt.strategy';
-import { AuthController } from './auth.controller';
+// import { AuthController } from './auth.controller';
 import { ConfigService } from '@nestjs/config';
+import { AuthResolver } from './auth.resolver';
+import { JwtRefreshStrategy } from './jwt.refresh-strategy';
 
 @Module({
   imports: [
     UsersModule,
     PassportModule.register({ defaultStrategy: 'jwt' }),
-    JwtModule.registerAsync({
-      useFactory: async (configService: ConfigService) => {
-        return {
-          // envファイルから秘密鍵を取り出す
-          secret: configService.get<string>('JWT_SECRET_KEY'),
-          signOptions: {
-            expiresIn: '1200s',
-          },
-        };
-      },
-      inject: [ConfigService],
-    }),
+    JwtModule.register({}),
   ],
-  controllers: [AuthController],
-  providers: [AuthService, LocalStrategy, JwtStrategy],
+  providers: [
+    AuthService,
+    LocalStrategy,
+    JwtStrategy,
+    AuthResolver,
+    JwtRefreshStrategy,
+  ],
 })
 export class AuthModule {}

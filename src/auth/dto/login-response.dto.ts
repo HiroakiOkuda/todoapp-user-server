@@ -1,5 +1,4 @@
 import { Field, ObjectType } from '@nestjs/graphql';
-import { Type } from 'class-transformer';
 import { IsString } from 'class-validator';
 import { User } from '../../users/user.model';
 
@@ -8,4 +7,10 @@ export class LoginResponse {
   @Field()
   @IsString()
   access_token: string;
+
+  @Field()
+  refresh_token: string;
+
+  @Field(() => User)
+  user: User;
 }

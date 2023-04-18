@@ -2,7 +2,7 @@ import { Field, ArgsType } from '@nestjs/graphql';
 import { IsEmail, IsNotEmpty, IsString, MaxLength } from 'class-validator';
 
 @ArgsType()
-export class RegisterInput {
+export class UpdateOneUserArgs {
   @Field()
   @IsNotEmpty()
   @IsString()

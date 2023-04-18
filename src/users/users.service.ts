@@ -1,7 +1,9 @@
 import { Injectable } from '@nestjs/common';
+import { Args } from '@nestjs/graphql';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { RegisterInput } from './dto/register.dto';
+import { UpdateOneUserArgs } from './dto/update.dto';
 import { User } from './user.model';
 
 /**
@@ -32,7 +34,17 @@ export class UsersService {
     });
   }
 
-  async createUser(args: RegisterInput) {
+  async update(@Args() args: UpdateOneUserArgs): Promise<User> {
+    const { username, email, password } = args;
+    const updatedUser = {
+      username,
+      email,
+      password,
+    };
+    return await this.usersRepository.save(updatedUser);
+  }
+
+  async registerUser(@Args() args: RegisterInput): Promise<User> {
     return await this.usersRepository.save(args);
   }
 }

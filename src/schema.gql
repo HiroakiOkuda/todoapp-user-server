@@ -26,23 +26,26 @@ input EditTodoInput {
   title: String
 }
 
+type LoginResponse {
+  access_token: String!
+  refresh_token: String!
+  user: User!
+}
+
 type Mutation {
   createTodo(todo: AddTodoInput!): Todo!
-  createUser(args: RegisterInput!): User
   deleteTodo(todo: DeleteTodoInput!): Boolean!
   editTodo(todo: EditTodoInput!): Todo!
+  login: LoginResponse!
+  logout: Boolean!
+  refreshToken: LoginResponse!
+  registerUser(email: String!, password: String!, username: String!): User
 }
 
 type Query {
   getTodo(id: Int!): Todo!
   getUserByEmail(args: String!): User!
   todos: [Todo!]!
-}
-
-input RegisterInput {
-  email: String!
-  password: String!
-  username: String!
 }
 
 type Todo {
@@ -60,6 +63,7 @@ type User {
   createdAt: DateTime!
   deletedAt: DateTime!
   email: String!
+  hashedRefreshToken: String!
   password: String!
   updatedAt: DateTime!
   userId: Int!

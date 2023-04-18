@@ -30,10 +30,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     });
   }
 
-  async validate(payload: {
-    username: string;
-    sub: string;
-  }): Promise<User | null> {
+  async validate(payload: JWTPayload): Promise<User | null> {
     return this.usersService.findOneByUsername(payload.username);
   }
 }

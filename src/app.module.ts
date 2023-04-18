@@ -7,9 +7,8 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { TodosModule } from './todos/todos.module';
 import { AuthModule } from './auth/auth.module';
 import { UsersModule } from './users/users.module';
-import { dataSourceOptions } from '../db/data-source';
 import { ConfigModule } from '@nestjs/config';
-import { AuthController } from './auth/auth.controller';
+import { typeOrmAsyncConfig } from '../ormconfig';
 
 @Module({
   imports: [
@@ -21,9 +20,9 @@ import { AuthController } from './auth/auth.controller';
         origin: true,
         credentials: true,
       },
-      include: [TodosModule, UsersModule, AuthModule],
+      fieldResolverEnhancers: ['interceptors'],
     }),
-    TypeOrmModule.forRoot(dataSourceOptions),
+    TypeOrmModule.forRootAsync(typeOrmAsyncConfig),
     ConfigModule.forRoot({
       isGlobal: true,
     }),

@@ -7,7 +7,7 @@ import {
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
-import { IsOptional } from 'class-validator';
+import { IsOptional, IsString } from 'class-validator';
 
 @Entity('users')
 @ObjectType()
@@ -42,6 +42,11 @@ export class User {
   @CreateDateColumn()
   @IsOptional()
   deletedAt?: Date | null;
+
+  @Field()
+  @Column()
+  @IsString()
+  hashedRefreshToken?: string;
 
   @OneToMany((type) => Todo, (todo) => todo.user, {
     createForeignKeyConstraints: false,

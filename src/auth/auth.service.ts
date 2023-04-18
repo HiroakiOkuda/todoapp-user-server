@@ -1,10 +1,11 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { User } from '../users/user.model';
 import { UsersService } from '../users/users.service';
-// import * as bcrypt from 'bcrypt';
+import * as bcrypt from 'bcrypt';
 import { LoginResponse } from './dto/login-response.dto';
-type PasswordOmitUser = Omit<User, 'password'>;
+import { Tokens } from './auth.types';
+import { JwtPayload } from './jwt.types';
 
 /**
  * @description Passwordでは出来ない認証処理をするクラス
@@ -20,23 +21,81 @@ export class AuthService {
   async validateUser(
     username: User['username'],
     password: User['password'],
-  ): Promise<PasswordOmitUser | null> {
+  ): Promise<User | null> {
     const user = await this.usersServive.findOneByUsername(username);
     console.log(user);
 
     // DBに保存されているpasswordはハッシュ化されていることを想定し、bcryptを用いてpasswordを判定する
     if (user && password === user.password) {
-      const { password, ...result } = user; // password情報を外部に出さないようにする
-      return result;
+      return user;
     }
     return null;
   }
 
   // jwt tokenを返す
-  async login(user: PasswordOmitUser): Promise<LoginResponse> {
-    const payload = { username: user.username, sub: user.userId };
+  async login(user: User): Promise<LoginResponse> {
+    const tokens = await this.getTokens(user);
+    await this.updateHashedRefreshToken(user, tokens.refresh_token);
+
     return {
-      access_token: this.jwtService.sign(payload, { algorithm: 'RS256' }),
+      ...tokens,
+      user: user,
+    };
+  }
+
+  async refreshToken(
+    user: User,
+    authorization: string,
+  ): Promise<LoginResponse> {
+    const refreshToken = authorization.replace('Bearer', '').trim();
+
+    if (!bcrypt.compareSync(refreshToken, user.hashedRefreshToken)) {
+      throw new UnauthorizedException();
+    }
+
+    const tokens = await this.getTokens(user);
+    await this.updateHashedRefreshToken(user, tokens.refresh_token);
+
+    return {
+      ...tokens,
+      user: user,
+    };
+  }
+
+  async logout(user: User): Promise<boolean> {
+    // await this.usersServive.update({
+    //   where: { id: user.userId },
+    //   data: { hashedRefreshToken: { set: null } },
+    // });
+
+    return true;
+  }
+
+  async updateHashedRefreshToken(
+    user: User,
+    refreshToken: string,
+  ): Promise<void> {
+    const hashedRefreshToken = bcrypt.hashSync(refreshToken, 10);
+    console.log(hashedRefreshToken);
+  }
+
+  async getTokens(user: User): Promise<Tokens> {
+    const payload: JwtPayload = { username: user.username, sub: user.userId };
+
+    const [accessToken, refreshToken] = await Promise.all([
+      this.jwtService.signAsync(payload, {
+        secret: process.env.JWT_SECRET,
+        expiresIn: '15m',
+      }),
+      this.jwtService.signAsync(payload, {
+        secret: process.env.JWT_REFRESH_SECRET,
+        expiresIn: '7d',
+      }),
+    ]);
+
+    return {
+      access_token: accessToken,
+      refresh_token: refreshToken,
     };
   }
 }
