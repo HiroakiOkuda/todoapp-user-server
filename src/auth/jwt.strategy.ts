@@ -26,7 +26,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
       // 有効期間を無視するかどうか
       ignoreExpiration: false,
       // envファイルから秘密鍵を取り出す
-      secretOrKey: configService.get<string>('JWT_SECRET_KEY'),
+      secretOrKey: configService.get<string>('JWT_SECRET'),
     });
   }
 
