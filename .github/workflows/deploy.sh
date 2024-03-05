@@ -19,7 +19,7 @@ ssh -i ~/.ssh/deploy_key ${USERNAME}@${HOST} -p ${PORT} << 'EOF'
 
 # Dockerコンテナの削除と実行
 podman rm -f todoapp-server > /dev/null 2>&1 || echo "Container removal failed"
-podman run -d --name=todoapp-server -p 3000:3000 todoapp-server > /dev/null 2>&1 || echo "Failed to run Docker container"
+podman run -d --name=todoapp-server -p 3400:3400 todoapp-server > /dev/null 2>&1 || echo "Failed to run Docker container"
 
 # エラーがあれば出力
 if [ \$? -ne 0 ]; then
