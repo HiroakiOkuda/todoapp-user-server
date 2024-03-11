@@ -15,9 +15,14 @@ ssh-keyscan -p "$PORT" "$HOST" >> ~/.ssh/known_hosts
 podman build -t todoapp-server .
 podman save todoapp-server | gzip | ssh -i ~/.ssh/deploy_key -o BatchMode=yes ${USERNAME}@${HOST} -p ${PORT} 'gunzip | podman load'
 
-# コンテナの更新前にPodmanサービスを安全に再起動
-ssh -i ~/.ssh/deploy_key -o BatchMode=yes ${USERNAME}@${HOST} -p ${PORT} << EOF
-sudo systemctl restart podman.service
+# リモートでのコンテナ操作
+ssh -i ~/.ssh/deploy_key -p $PORT $USERNAME@$HOST << EOF
+  # コンテナの停止と削除（存在する場合）
+  podman stop todoapp-server || true
+  podman rm todoapp-server || true
+
+  # 新しいコンテナの実行
+  podman run -d --name todoapp-server -p 3400:3400 todoapp-server
 EOF
 
 # コンテナの更新と管理
