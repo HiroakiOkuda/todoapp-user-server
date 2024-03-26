@@ -1,50 +1,89 @@
-import { Injectable } from '@nestjs/common';
-import { Args } from '@nestjs/graphql';
-import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
-import { RegisterInput } from './dto/register.dto';
-import { UpdateOneUserArgs } from './dto/update.dto';
-import { User } from './user.model';
+import { Inject, Injectable } from '@nestjs/common';
+import { QueryRunner } from 'typeorm';
+import { User } from './user.entity';
+import { IUsersAccessor } from './users.accessor.interface';
+import { ITransactionService } from '../common/transaction/transaction.service.interface';
 
 /**
  * @description User情報を扱うクラス
  */
+export class UpdateOneUserServiceInput {
+  id: number;
+  username?: string;
+  email?: string;
+  password?: string;
+}
+
+export class RegisterUserServiceInput {
+  username: string;
+  email: string;
+  password: string;
+}
+
 @Injectable()
 export class UsersService {
   constructor(
-    @InjectRepository(User)
-    private readonly usersRepository: Repository<User>,
+    @Inject('UsersAccessor')
+    private readonly usersAccessor: IUsersAccessor<QueryRunner>,
+    @Inject('TransactionService')
+    private readonly transactionService: ITransactionService<any>,
   ) {}
 
   async findOneByEmail(email: string): Promise<User | undefined> {
-    return await this.usersRepository.findOne({
-      where: {
-        email: email,
-      },
-    });
+    try {
+      const users = await this.usersAccessor.findUsers({
+        email,
+      });
+      if (!users || users.length !== 1) {
+        throw new Error('User not found');
+      }
+      return users[0];
+    } catch (e) {
+      throw new Error('Failed to getUsers');
+    }
   }
 
   async findOneByUsername(
     username: User['username'],
   ): Promise<User | undefined> {
-    return await this.usersRepository.findOne({
-      where: {
+    try {
+      const users = await this.usersAccessor.findUsers({
         username,
-      },
-    });
+      });
+      if (!users || users.length !== 1) {
+        throw new Error('User not found');
+      }
+      return users[0];
+    } catch (e) {
+      throw new Error('Failed to getUsers');
+    }
   }
 
-  async update(@Args() args: UpdateOneUserArgs): Promise<User> {
+  async updateUser(args: UpdateOneUserServiceInput): Promise<User> {
     const { username, email, password } = args;
-    const updatedUser = {
-      username,
-      email,
-      password,
-    };
-    return await this.usersRepository.save(updatedUser);
+    const transaction = await this.transactionService.startTransaction();
+    try {
+      const updatedUser = new User(Date.now(), username, email, password);
+      await this.usersAccessor.updateUser(updatedUser);
+      await this.transactionService.commit(transaction);
+      return updatedUser;
+    } catch (e) {
+      await this.transactionService.rollbackIfActive(transaction);
+      throw new Error('Failed to update user');
+    }
   }
 
-  async registerUser(@Args() args: RegisterInput): Promise<User> {
-    return await this.usersRepository.save(args);
+  async registerUser(args: RegisterUserServiceInput): Promise<User> {
+    const { username, email, password } = args;
+    const transaction = await this.transactionService.startTransaction();
+    try {
+      const newUser = new User(Date.now(), username, email, password);
+      await this.usersAccessor.saveUser([newUser]);
+      await this.transactionService.commit(transaction);
+      return newUser;
+    } catch (e) {
+      await this.transactionService.rollbackIfActive(transaction);
+      throw new Error('Failed to register user');
+    }
   }
 }

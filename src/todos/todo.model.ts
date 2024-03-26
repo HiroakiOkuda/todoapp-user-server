@@ -1,58 +1,56 @@
-import { Field, ID, ObjectType, Int } from '@nestjs/graphql';
-import { IsNumber, IsOptional, IsString } from 'class-validator';
-import { User } from '../users/user.model';
+import { TypeOrmUserModel } from '../users/user.model';
 import {
   Entity,
   Column,
-  PrimaryGeneratedColumn,
   CreateDateColumn,
   ManyToOne,
+  UpdateDateColumn,
+  DeleteDateColumn,
+  JoinColumn,
+  PrimaryColumn,
 } from 'typeorm';
+import { Todo } from './todo.entity';
 
 @Entity('todos')
-@ObjectType()
-export class Todo {
-  @PrimaryGeneratedColumn()
-  @Field((type) => ID)
-  @IsNumber()
-  readonly todoId: number;
+export class TypeOrmTodoModel {
+  @PrimaryColumn()
+  todoId: number;
 
   @Column({ length: '50' })
-  @Field()
-  @IsString()
   title: string;
 
   @Column({ length: '10000' })
-  @Field()
-  @IsOptional()
-  @IsString()
-  description?: string | null;
+  description?: string;
 
   @Column({ type: 'int', unsigned: true })
-  @Field((type) => Int)
-  @IsNumber()
   status: number;
 
   @Column()
-  @Field()
-  @IsOptional()
-  due?: Date | null;
+  due?: Date;
 
   @CreateDateColumn()
-  @Field()
-  @IsOptional()
-  createdAt?: Date | null;
+  createdAt?: Date;
 
-  @CreateDateColumn()
-  @Field()
-  @IsOptional()
-  updatedAt?: Date | null;
+  @UpdateDateColumn()
+  updatedAt?: Date;
 
-  @CreateDateColumn()
-  @Field()
-  @IsOptional()
-  deletedAt?: Date | null;
+  @DeleteDateColumn()
+  deletedAt?: Date;
 
-  @ManyToOne(() => User, (user) => user.todos)
-  user?: User;
+  @ManyToOne(() => TypeOrmUserModel)
+  @JoinColumn({ name: 'user_id' })
+  user: TypeOrmUserModel;
+
+  toTodo() {
+    return new Todo(
+      this.todoId,
+      this.title,
+      this.description,
+      this.status,
+      this.due,
+      this.createdAt,
+      this.updatedAt,
+      this.deletedAt,
+    );
+  }
 }

@@ -1,6 +1,6 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
+import { ArgsType, Field, Int } from '@nestjs/graphql';
 
-@InputType()
+@ArgsType()
 export class DeleteTodoInput {
   @Field((type) => Int)
   id: number;

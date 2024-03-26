@@ -1,55 +1,32 @@
-import { ConfigModule, ConfigService } from '@nestjs/config';
-import {
-  TypeOrmModuleAsyncOptions,
-  TypeOrmModuleOptions,
-} from '@nestjs/typeorm';
-import { Todo } from './src/todos/todo.model';
-import { User } from './src/users/user.model';
-import { DataSource } from 'typeorm';
+const baseDbConfig = {
+  type: 'mysql',
+  host: process.env.DB_HOST,
+  port: parseInt(process.env.DB_PORT, 10),
+  username: process.env.DB_USERNAME,
+  password: process.env.DB_PASSWORD,
+  database: process.env.DB_DATABASE,
+  entities: ['dist/**/*.model{.ts,.js}'],
+  migrations: [
+    `db/migrations/*.${
+      process.env.TODOAPP_ENV === 'development' ? 'ts' : 'js'
+    }`,
+  ],
+  synchronize: false,
+  logging: false,
+};
 
-export const typeOrmAsyncConfig: TypeOrmModuleAsyncOptions = {
-  imports: [ConfigModule],
-  inject: [ConfigService],
-  useFactory: async (): Promise<TypeOrmModuleOptions> => {
-    return {
-      type: 'mysql',
-      host: process.env.DB_HOST,
-      port: parseInt(process.env.DB_PORT, 10),
-      username: process.env.DB_USERNAME,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_DATABASE,
-      entities: [Todo, User],
-      migrations: [
-        `db/migrations/*.${process.env.ENV === 'local' ? 'ts' : 'js'}`,
-      ],
-      synchronize: false,
-      logging: false,
-    };
+module.exports = [
+  {
+    name: 'default',
+    host: process.env.DB_HOST,
+    database: process.env.DB_DATABASE,
+    ...baseDbConfig,
   },
-};
-
-export const typeOrmConfig: TypeOrmModuleOptions = {
-  type: 'mysql',
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT, 10),
-  username: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
-  entities: [Todo, User],
-  migrations: [`db/migrations/*.${process.env.ENV === 'local' ? 'ts' : 'js'}`],
-  synchronize: false,
-  logging: false,
-};
-
-export const AppDataSource = new DataSource({
-  type: 'mysql',
-  host: process.env.DB_HOST,
-  port: parseInt(process.env.DB_PORT, 10),
-  username: process.env.DB_USERNAME,
-  password: process.env.DB_PASSWORD,
-  database: process.env.DB_DATABASE,
-  entities: [Todo, User],
-  migrations: [`db/migrations/*.${process.env.ENV === 'local' ? 'ts' : 'js'}`],
-  synchronize: false,
-  logging: false,
-});
+  {
+    name: 'reader',
+    host: process.env.DB_HOST_READER,
+    database: process.env.DB_DATABASE,
+    ...baseDbConfig,
+    synchronize: false,
+  },
+];

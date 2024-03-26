@@ -1,8 +1,8 @@
 import { Field, ObjectType } from '@nestjs/graphql';
 import { IsString } from 'class-validator';
-import { User } from '../../users/user.model';
+import { UserGqlDto } from '../../users/user.gql.dto';
 
-@ObjectType()
+@ObjectType('LoginResponse')
 export class LoginResponse {
   @Field()
   @IsString()
@@ -11,6 +11,6 @@ export class LoginResponse {
   @Field()
   refresh_token: string;
 
-  @Field(() => User)
-  user: User;
+  @Field(() => UserGqlDto)
+  user: UserGqlDto;
 }

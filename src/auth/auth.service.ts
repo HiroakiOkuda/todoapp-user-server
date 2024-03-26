@@ -1,11 +1,12 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { Inject, Injectable, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
-import { User } from '../users/user.model';
+import { User } from '../users/user.entity';
 import { UsersService } from '../users/users.service';
 import * as bcrypt from 'bcrypt';
 import { LoginResponse } from './dto/login-response.dto';
 import { Tokens } from './auth.types';
 import { JwtPayload } from './jwt.types';
+import { UserGqlDtoFactory } from '../users/user.gql.dto.factory';
 
 /**
  * @description Passwordでは出来ない認証処理をするクラス
@@ -15,6 +16,8 @@ export class AuthService {
   constructor(
     private usersServive: UsersService,
     private jwtService: JwtService,
+    @Inject('UserGqlDtoFactory')
+    private readonly userGqlDtoFactory: UserGqlDtoFactory,
   ) {}
 
   // userを認証する
@@ -39,7 +42,7 @@ export class AuthService {
 
     return {
       ...tokens,
-      user: user,
+      user: this.userGqlDtoFactory.create([user])[0],
     };
   }
 
@@ -58,7 +61,7 @@ export class AuthService {
 
     return {
       ...tokens,
-      user: user,
+      user: this.userGqlDtoFactory.create([user])[0],
     };
   }
 

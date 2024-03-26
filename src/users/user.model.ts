@@ -1,56 +1,57 @@
-import { Field, Int, ObjectType } from '@nestjs/graphql';
-import { Todo } from '../todos/todo.model';
+import { TypeOrmTodoModel } from '../todos/todo.model';
 import {
   Column,
   CreateDateColumn,
+  DeleteDateColumn,
   Entity,
   OneToMany,
-  PrimaryGeneratedColumn,
+  PrimaryColumn,
+  UpdateDateColumn,
 } from 'typeorm';
-import { IsOptional, IsString } from 'class-validator';
+import { User } from './user.entity';
 
 @Entity('users')
-@ObjectType()
-export class User {
-  @PrimaryGeneratedColumn()
-  @Field((type) => Int)
+export class TypeOrmUserModel {
+  @PrimaryColumn()
   userId: number;
 
-  @Field()
   @Column({ length: '50' })
   username: string;
 
-  @Field()
   @Column({ length: '127' })
   email: string;
 
-  @Field()
   @Column({ length: '50' })
   password: string;
 
-  @Field()
   @CreateDateColumn()
-  @IsOptional()
-  createdAt?: Date | null;
+  createdAt?: Date;
 
-  @Field()
-  @CreateDateColumn()
-  @IsOptional()
+  @UpdateDateColumn()
   updatedAt?: Date | null;
 
-  @Field()
-  @CreateDateColumn()
-  @IsOptional()
+  @DeleteDateColumn()
   deletedAt?: Date | null;
 
-  @Field()
   @Column()
-  @IsString()
   hashedRefreshToken?: string;
 
-  @OneToMany((type) => Todo, (todo) => todo.user, {
+  @OneToMany((type) => TypeOrmTodoModel, (todo) => todo.user, {
     createForeignKeyConstraints: false,
     persistence: false,
   })
-  todos?: Todo[];
+  todos?: TypeOrmTodoModel[];
+
+  toUser() {
+    return new User(
+      this.userId,
+      this.username,
+      this.email,
+      this.password,
+      this.createdAt,
+      this.updatedAt,
+      this.deletedAt,
+      this.hashedRefreshToken,
+    );
+  }
 }

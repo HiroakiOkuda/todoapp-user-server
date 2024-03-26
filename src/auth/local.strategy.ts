@@ -2,7 +2,7 @@ import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
 import { Strategy } from 'passport-local';
 import { AuthService } from './auth.service';
-import { User } from '../users/user.model';
+import { User } from '../users/user.entity';
 type PasswordOmitUser = Omit<User, 'password'>;
 /**
  * @description usernameとpasswordを使った認証処理を行うクラス

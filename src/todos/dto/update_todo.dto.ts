@@ -1,8 +1,8 @@
-import { Field, InputType, Int } from '@nestjs/graphql';
+import { ArgsType, Field, Int } from '@nestjs/graphql';
 import { Max, MaxLength, Min } from 'class-validator';
 
-@InputType()
-export class EditTodoInput {
+@ArgsType()
+export class UpdateTodoInput {
   @Field((type) => Int)
   id: number;
 

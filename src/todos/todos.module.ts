@@ -1,11 +1,14 @@
 import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Todo } from './todo.model';
 import { TodosResolver } from './todos.resolver';
-import { TodosService } from './todos.service';
-import { User } from '../users/user.model';
+import { TypeOrmTodosAccessorModule } from './todos.accessor.module';
+import { TodosServiceModule } from './todos.service.module';
+import { TodoGqlDtoFactoryModule } from './todo.gql.dto.factory';
 @Module({
-  imports: [TypeOrmModule.forFeature([Todo, User])],
-  providers: [TodosResolver, TodosService],
+  imports: [
+    TypeOrmTodosAccessorModule,
+    TodosServiceModule,
+    TodoGqlDtoFactoryModule,
+  ],
+  providers: [TodosResolver],
 })
 export class TodosModule {}

@@ -1,23 +1,33 @@
 import { Field, ArgsType } from '@nestjs/graphql';
-import { IsEmail, IsNotEmpty, IsString, MaxLength } from 'class-validator';
+import {
+  IsEmail,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from 'class-validator';
 
 @ArgsType()
 export class UpdateOneUserArgs {
   @Field()
   @IsNotEmpty()
+  id: number;
+
+  @Field()
+  @IsOptional()
   @IsString()
   @MaxLength(50)
   username: string;
 
   @Field()
-  @IsNotEmpty()
+  @IsOptional()
   @IsEmail()
   @IsString()
   @MaxLength(127)
   email: string;
 
   @Field()
-  @IsNotEmpty()
+  @IsOptional()
   @IsString()
   @MaxLength(127)
   password: string;

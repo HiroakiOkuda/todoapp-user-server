@@ -1,12 +1,15 @@
 import { Module } from '@nestjs/common';
-import { UsersService } from './users.service';
+import { UsersServiceModule } from './users.service.module';
+import { TypeOrmUsersAccessorModule } from './users.accessor.module';
 import { UsersResolver } from './users.resolver';
-import { User } from './user.model';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { Todo } from '../todos/todo.model';
+import { UserGqlDtoFactoryModule } from './user.gql.dto.factory';
 @Module({
-  imports: [TypeOrmModule.forFeature([User, Todo])],
-  providers: [UsersService, UsersResolver],
-  exports: [UsersService],
+  imports: [
+    TypeOrmUsersAccessorModule,
+    UsersServiceModule,
+    UserGqlDtoFactoryModule,
+  ],
+  providers: [UsersResolver],
+  exports: [UsersResolver],
 })
 export class UsersModule {}
