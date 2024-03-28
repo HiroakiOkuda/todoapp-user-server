@@ -1,5 +1,4 @@
 import { Module } from '@nestjs/common';
-import { AppService } from './app.service';
 import { GraphQLModule } from '@nestjs/graphql';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { TypeOrmModule } from '@nestjs/typeorm';
@@ -25,6 +24,7 @@ const ENV = process.env.TODOAPP_ENV;
       fieldResolverEnhancers: ['interceptors'],
     }),
     ConfigModule.forRoot({
+      envFilePath: !ENV ? '.env.development' : `.env.${ENV}`,
       isGlobal: true,
     }),
     TypeOrmModule.forRootAsync({
@@ -39,6 +39,11 @@ const ENV = process.env.TODOAPP_ENV;
     AuthModule,
     UsersModule,
   ],
-  providers: [AppService],
+  providers: [
+    {
+      provide: 'port',
+      useValue: process.env.TODOAPP_LISTEN_PORT?.toString(),
+    },
+  ],
 })
 export class AppModule {}

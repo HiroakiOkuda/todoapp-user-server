@@ -17,23 +17,13 @@ podman save todoapp-server | gzip | ssh -i ~/.ssh/deploy_key -o BatchMode=yes ${
 
 # リモートでのコンテナ操作
 ssh -i ~/.ssh/deploy_key -p $PORT $USERNAME@$HOST << EOF
+  cd todoapp-server && yarn migration:run
   # コンテナの停止と削除（存在する場合）
   podman stop todoapp-server || true
   podman rm todoapp-server || true
 
   # 新しいコンテナの実行
   podman run -d --name todoapp-server -p 3400:3400 todoapp-server
-EOF
-
-# コンテナの更新と管理
-ssh -i ~/.ssh/deploy_key -o BatchMode=yes ${USERNAME}@${HOST} -p ${PORT} << 'EOF'
-
-# コンテナが存在する場合は削除
-podman rm -f todoapp-server || true
-
-# 新しいコンテナを実行
-podman run -d --name=todoapp-server -p 3400:3400 todoapp-server
-
 EOF
 
 # デプロイメントの成功確認
