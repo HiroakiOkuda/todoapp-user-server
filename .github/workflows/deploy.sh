@@ -20,8 +20,8 @@ ssh -i ~/.ssh/deploy_key -p $PORT $USERNAME@$HOST << EOF
   cd todoapp-user-server
   git pull 
   yarn build
-  yarn migration:show
-  yarn migration:run
+  TODOAPP_ENV=production yarn migration:show
+  TODOAPP_ENV=production yarn migration:run
 EOF
 
 # デプロイメントの成功確認
