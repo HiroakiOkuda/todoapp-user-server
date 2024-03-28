@@ -17,7 +17,7 @@ podman save todoapp-server | gzip | ssh -i ~/.ssh/deploy_key -o BatchMode=yes ${
 
 # リモートでのコンテナ操作
 ssh -i ~/.ssh/deploy_key -p $PORT $USERNAME@$HOST << EOF
-  cd todoapp-server
+  cd todoapp-user-server
   git pull 
   yarn build
   yarn migration:show
