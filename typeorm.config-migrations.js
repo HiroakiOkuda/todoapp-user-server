@@ -1,4 +1,9 @@
-import { DataSource } from 'typeorm';
+const DataSource = require('typeorm').DataSource;
+
+require('dotenv').config({
+  debug: true,
+  path: `.env.${process.env.TODOAPP_ENV}`,
+});
 
 module.exports = [
   new DataSource({
