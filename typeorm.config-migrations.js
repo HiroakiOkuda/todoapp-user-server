@@ -5,10 +5,6 @@ require('dotenv').config({
   path: `.env.${process.env.TODOAPP_ENV}`,
 });
 
-console.log(process.env.DB_HOST);
-console.log(process.env.DB_PORT);
-console.log(process.env.DB_USER_NAME);
-console.log(process.env.DB_DATABASE);
 module.exports = [
   new DataSource({
     type: 'mysql',
