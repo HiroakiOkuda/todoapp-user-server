@@ -1,5 +1,5 @@
 const DataSource = require('typeorm').DataSource;
-
+console.log(process.env.TODOAPP_ENV);
 require('dotenv').config({
   debug: true,
   path: `.env.${process.env.TODOAPP_ENV}`,
