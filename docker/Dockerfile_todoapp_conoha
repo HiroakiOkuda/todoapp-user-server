@@ -4,7 +4,7 @@ WORKDIR /usr/src/app
 
 # 依存関係のインストール
 COPY ["package.json", "yarn.lock", "./"]
-RUN yarn install
+RUN yarn install --non-interactive --frozen-lockfile
 
 # アプリケーションコードのコピー
 COPY . .
@@ -18,14 +18,17 @@ WORKDIR /usr/src/app
 
 # 依存関係のインストール（本番用）
 COPY --from=builder /usr/src/app/package.json /usr/src/app/yarn.lock ./
-RUN yarn install --production
-
-# ビルドされたファイルのコピー
-COPY --from=builder /usr/src/app/dist ./dist
+RUN yarn install --non-interactive --frozen-lockfile --production
 
 # 環境変数の設定
 ENV NODE_ENV=production
 ENV TODOAPP_ENV=production
-
+WORKDIR /usr/src/app
+COPY --from=builder --chown=nonroot:nonroot /usr/src/app/dist /usr/src/app/dist
+COPY --from=node_modules --chown=nonroot:nonroot /usr/src/app/node_modules /usr/src/app/node_modules
+COPY --chown=nonroot:nonroot ormconfig.js ./
+COPY --chown=nonroot:nonroot .env.* ./
+EXPOSE 3300
+USER nonroot
 # 本番用の起動コマンド
 CMD ["dist/src/main.js"]
