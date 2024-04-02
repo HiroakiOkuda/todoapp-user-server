@@ -12,7 +12,7 @@ chmod 600 ~/.ssh/deploy_key
 ssh-keyscan -p "$PORT" "$HOST" >> ~/.ssh/known_hosts
 
 # リモートホストへのDockerイメージ転送
-podman build -t todoapp-server .
+podman build -t todoapp-server -f ./docker/Dockerfile_todoapp_conoha .
 podman save todoapp-server | gzip | ssh -i ~/.ssh/deploy_key -o BatchMode=yes ${USERNAME}@${HOST} -p ${PORT} 'gunzip | podman load'
 
 # マイグレーションとコンテナの起動
