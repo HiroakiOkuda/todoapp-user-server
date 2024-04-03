@@ -22,11 +22,10 @@ FROM node:18.13.0
 ENV NODE_ENV=production
 ENV TODOAPP_ENV=production
 WORKDIR /usr/src/app
-COPY --from=builder --chown=nonroot:nonroot /usr/src/app/dist /usr/src/app/dist
-COPY --from=node_modules --chown=nonroot:nonroot /usr/src/app/node_modules /usr/src/app/node_modules
-COPY --chown=nonroot:nonroot ormconfig.js /usr/src/app
-COPY --chown=nonroot:nonroot .env.* /usr/src/app
-EXPOSE 3300
-USER nonroot
+COPY --from=builder /usr/src/app/dist /usr/src/app/dist
+COPY --from=node_modules /usr/src/app/node_modules /usr/src/app/node_modules
+COPY ormconfig.js /usr/src/app
+COPY .env.* /usr/src/app
+EXPOSE 3300 
 # 本番用の起動コマンド
 CMD ["dist/src/main.js"]
