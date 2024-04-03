@@ -25,7 +25,7 @@ ssh -i ~/.ssh/deploy_key -p $PORT $USERNAME@$HOST << EOF
   TODOAPP_ENV=production yarn migration:run
 
   # Docker コンテナの起動（ここを修正または追加）
-  docker down todoapp-server || true  # 既に実行中のコンテナがあれば停止
+  docker stop todoapp-server || true  # 既に実行中のコンテナがあれば停止
   docker rm todoapp-server || true  # 停止したコンテナを削除
   docker run -d --name todoapp-server -p 3300:3300 todoapp-server  # 新しいコンテナを起動
 EOF
