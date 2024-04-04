@@ -12,8 +12,8 @@ chmod 600 ~/.ssh/deploy_key
 ssh-keyscan -p "$PORT" "$HOST" >> ~/.ssh/known_hosts
 
 # リモートホストへのDockerイメージ転送
-docker build -t todoapp-server -f ./docker/Dockerfile_todoapp_conoha .
-docker save todoapp-server | gzip | ssh -i ~/.ssh/deploy_key -o BatchMode=yes ${USERNAME}@${HOST} -p ${PORT} 'gunzip | docker load'
+podman build -t todoapp-server -f ./docker/Dockerfile_todoapp_conoha .
+podman save todoapp-server | gzip | ssh -i ~/.ssh/deploy_key -o BatchMode=yes ${USERNAME}@${HOST} -p ${PORT} 'gunzip | docker load'
 
 # マイグレーションとコンテナの起動
 ssh -i ~/.ssh/deploy_key -p $PORT $USERNAME@$HOST << EOF
@@ -25,9 +25,9 @@ ssh -i ~/.ssh/deploy_key -p $PORT $USERNAME@$HOST << EOF
   TODOAPP_ENV=production yarn migration:run
 
   # Docker コンテナの起動（ここを修正または追加）
-  /usr/bin/docker stop todoapp-server || true  # 既に実行中のコンテナがあれば停止
-  /usr/bin/docker rm todoapp-server || true  # 停止したコンテナを削除
-  /usr/bin/docker run -d --name todoapp-server -p 3300:3300 todoapp-server  # 新しいコンテナを起動
+  podman down todoapp-server || true  # 既に実行中のコンテナがあれば停止
+  podman rm todoapp-server || true  # 停止したコンテナを削除
+  podman run -d --name todoapp-server -p 3300:3300 todoapp-server  # 新しいコンテナを起動
 EOF
 
 # デプロイメントの成功確認
