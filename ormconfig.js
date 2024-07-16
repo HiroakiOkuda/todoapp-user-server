@@ -7,7 +7,7 @@ const baseDbConfig = {
   database: process.env.DB_DATABASE,
   entities: ['dist/**/*.model{.ts,.js}'],
   migrations: [
-    `src/migrations/*.${
+    `dist/migrations/*.${
       process.env.TODOAPP_ENV === 'development' ? 'ts' : 'js'
     }`,
   ],
